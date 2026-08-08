@@ -1,0 +1,41 @@
+# Secrets / local config
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Notebook / local editor state
+.vscode/
+.idea/
+.DS_Store
+
+# Local model / generated artifacts
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+*.gguf
+*.ckpt
+*.h5
+*.keras
+2.ChatModels/
+3.EmbeddedModels/
