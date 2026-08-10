@@ -37,5 +37,3 @@ env/
 *.ckpt
 *.h5
 *.keras
-2.ChatModels/
-3.EmbeddedModels/
