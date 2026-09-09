@@ -5,6 +5,7 @@
 *.pem
 *.p12
 *.pfx
+*.pdf
 
 # Python
 __pycache__/
