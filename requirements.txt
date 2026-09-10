@@ -13,6 +13,9 @@ huggingface-hub
 # env 
 python-dotenv
 
+# web document loading
+beautifulsoup4
+
 # machine learning utils
 numpy
 scikit-learn
