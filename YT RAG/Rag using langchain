@@ -1,0 +1,569 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyNI8EtZMghLmR4LZa4RzeSL"
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 1000
+        },
+        "collapsed": true,
+        "id": "yxo-8d1VEnqi",
+        "outputId": "42ccdd82-c7e3-4fc3-9a80-4e23086e4b8b"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Collecting langchain-community\n",
+            "  Downloading langchain_community-0.4.2-py3-none-any.whl.metadata (3.4 kB)\n",
+            "Collecting langchain-google-genai\n",
+            "  Downloading langchain_google_genai-4.4.2-py3-none-any.whl.metadata (2.7 kB)\n",
+            "Collecting faiss-cpu\n",
+            "  Downloading faiss_cpu-1.15.1-cp310-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (7.8 kB)\n",
+            "Requirement already satisfied: tiktoken in /usr/local/lib/python3.13/dist-packages (0.14.0)\n",
+            "Collecting youtube-transcript-api\n",
+            "  Downloading youtube_transcript_api-1.2.4-py3-none-any.whl.metadata (24 kB)\n",
+            "Requirement already satisfied: python-dotenv in /usr/local/lib/python3.13/dist-packages (1.2.3)\n",
+            "Requirement already satisfied: aiohttp<4.0.0,>=3.8.3 in /usr/local/lib/python3.13/dist-packages (from langchain-community) (3.14.3)\n",
+            "Collecting httpx-sse<1.0.0,>=0.4.0 (from langchain-community)\n",
+            "  Downloading httpx_sse-0.4.3-py3-none-any.whl.metadata (9.7 kB)\n",
+            "Collecting langchain-classic<2.0.0,>=1.0.7 (from langchain-community)\n",
+            "  Downloading langchain_classic-1.0.8-py3-none-any.whl.metadata (5.1 kB)\n",
+            "Requirement already satisfied: langchain-core<2.0.0,>=1.4.0 in /usr/local/lib/python3.13/dist-packages (from langchain-community) (1.6.6)\n",
+            "Requirement already satisfied: langsmith<1.0.0,>=0.1.125 in /usr/local/lib/python3.13/dist-packages (from langchain-community) (0.14.2)\n",
+            "Requirement already satisfied: numpy>=2.1.0 in /usr/local/lib/python3.13/dist-packages (from langchain-community) (2.1.3)\n",
+            "Collecting pydantic-settings<3.0.0,>=2.10.1 (from langchain-community)\n",
+            "  Downloading pydantic_settings-2.15.0-py3-none-any.whl.metadata (3.9 kB)\n",
+            "Requirement already satisfied: pyyaml<7.0.0,>=5.3.0 in /usr/local/lib/python3.13/dist-packages (from langchain-community) (6.0.3)\n",
+            "Collecting requests<3.0.0,>=2.32.5 (from langchain-community)\n",
+            "  Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)\n",
+            "Requirement already satisfied: sqlalchemy<3.0.0,>=1.4.0 in /usr/local/lib/python3.13/dist-packages (from langchain-community) (2.1.1)\n",
+            "Requirement already satisfied: tenacity!=8.4.0,<10.0.0,>=8.1.0 in /usr/local/lib/python3.13/dist-packages (from langchain-community) (9.1.4)\n",
+            "Collecting filetype<2.0.0,>=1.2.0 (from langchain-google-genai)\n",
+            "  Downloading filetype-1.2.0-py2.py3-none-any.whl.metadata (6.5 kB)\n",
+            "Collecting google-genai<3.0.0,>=2.20.0 (from langchain-google-genai)\n",
+            "  Downloading google_genai-2.30.1-py3-none-any.whl.metadata (58 kB)\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m58.6/58.6 kB\u001b[0m \u001b[31m3.0 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hCollecting langchain-core<2.0.0,>=1.4.0 (from langchain-community)\n",
+            "  Downloading langchain_core-1.6.10-py3-none-any.whl.metadata (4.8 kB)\n",
+            "Requirement already satisfied: pydantic<3.0.0,>=2.0.0 in /usr/local/lib/python3.13/dist-packages (from langchain-google-genai) (2.13.5)\n",
+            "Requirement already satisfied: packaging in /usr/local/lib/python3.13/dist-packages (from faiss-cpu) (26.3)\n",
+            "Requirement already satisfied: regex in /usr/local/lib/python3.13/dist-packages (from tiktoken) (2025.11.3)\n",
+            "Requirement already satisfied: defusedxml<0.8.0,>=0.7.1 in /usr/local/lib/python3.13/dist-packages (from youtube-transcript-api) (0.7.1)\n",
+            "Requirement already satisfied: aiohappyeyeballs>=2.5.0 in /usr/local/lib/python3.13/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (2.7.1)\n",
+            "Requirement already satisfied: aiosignal>=1.4.0 in /usr/local/lib/python3.13/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (1.4.0)\n",
+            "Requirement already satisfied: attrs>=17.3.0 in /usr/local/lib/python3.13/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (26.1.0)\n",
+            "Requirement already satisfied: frozenlist>=1.1.1 in /usr/local/lib/python3.13/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (1.8.0)\n",
+            "Requirement already satisfied: multidict<7.0,>=4.5 in /usr/local/lib/python3.13/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (6.9.1)\n",
+            "Requirement already satisfied: propcache>=0.2.0 in /usr/local/lib/python3.13/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (0.5.4)\n",
+            "Requirement already satisfied: yarl<2.0,>=1.17.0 in /usr/local/lib/python3.13/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (1.25.1)\n",
+            "Requirement already satisfied: anyio<5.0.0,>=4.8.0 in /usr/local/lib/python3.13/dist-packages (from google-genai<3.0.0,>=2.20.0->langchain-google-genai) (4.15.1)\n",
+            "Collecting google-auth<3.0.0,>=2.56.0 (from google-auth[requests]<3.0.0,>=2.56.0->google-genai<3.0.0,>=2.20.0->langchain-google-genai)\n",
+            "  Downloading google_auth-2.62.0-py3-none-any.whl.metadata (6.0 kB)\n",
+            "Requirement already satisfied: httpx<1.0.0,>=0.28.1 in /usr/local/lib/python3.13/dist-packages (from google-genai<3.0.0,>=2.20.0->langchain-google-genai) (0.28.1)\n",
+            "Requirement already satisfied: websockets<17.0,>=13.0.0 in /usr/local/lib/python3.13/dist-packages (from google-genai<3.0.0,>=2.20.0->langchain-google-genai) (15.0.1)\n",
+            "Requirement already satisfied: typing-extensions<5.0.0,>=4.14.0 in /usr/local/lib/python3.13/dist-packages (from google-genai<3.0.0,>=2.20.0->langchain-google-genai) (4.16.0)\n",
+            "Requirement already satisfied: distro<2,>=1.7.0 in /usr/local/lib/python3.13/dist-packages (from google-genai<3.0.0,>=2.20.0->langchain-google-genai) (1.9.0)\n",
+            "Requirement already satisfied: sniffio in /usr/local/lib/python3.13/dist-packages (from google-genai<3.0.0,>=2.20.0->langchain-google-genai) (1.3.1)\n",
+            "Collecting langchain-text-splitters<2.0.0,>=1.1.2 (from langchain-classic<2.0.0,>=1.0.7->langchain-community)\n",
+            "  Downloading langchain_text_splitters-1.1.3-py3-none-any.whl.metadata (3.6 kB)\n",
+            "Requirement already satisfied: jsonpatch<2.0.0,>=1.33.0 in /usr/local/lib/python3.13/dist-packages (from langchain-core<2.0.0,>=1.4.0->langchain-community) (1.33)\n",
+            "Requirement already satisfied: langchain-protocol>=0.0.17 in /usr/local/lib/python3.13/dist-packages (from langchain-core<2.0.0,>=1.4.0->langchain-community) (0.0.19)\n",
+            "Requirement already satisfied: uuid-utils<1.0,>=0.12.0 in /usr/local/lib/python3.13/dist-packages (from langchain-core<2.0.0,>=1.4.0->langchain-community) (0.17.1)\n",
+            "Requirement already satisfied: httpx2<3,>=2 in /usr/local/lib/python3.13/dist-packages (from langsmith<1.0.0,>=0.1.125->langchain-community) (2.13.1)\n",
+            "Requirement already satisfied: orjson>=3.9.14 in /usr/local/lib/python3.13/dist-packages (from langsmith<1.0.0,>=0.1.125->langchain-community) (3.12.0)\n",
+            "Requirement already satisfied: requests-toolbelt>=1.0.0 in /usr/local/lib/python3.13/dist-packages (from langsmith<1.0.0,>=0.1.125->langchain-community) (1.0.0)\n",
+            "Requirement already satisfied: xxhash>=3.0.0 in /usr/local/lib/python3.13/dist-packages (from langsmith<1.0.0,>=0.1.125->langchain-community) (4.0.1)\n",
+            "Requirement already satisfied: zstandard>=0.23.0 in /usr/local/lib/python3.13/dist-packages (from langsmith<1.0.0,>=0.1.125->langchain-community) (0.25.0)\n",
+            "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.13/dist-packages (from pydantic<3.0.0,>=2.0.0->langchain-google-genai) (0.8.0)\n",
+            "Requirement already satisfied: pydantic-core==2.46.5 in /usr/local/lib/python3.13/dist-packages (from pydantic<3.0.0,>=2.0.0->langchain-google-genai) (2.46.5)\n",
+            "Requirement already satisfied: typing-inspection>=0.4.2 in /usr/local/lib/python3.13/dist-packages (from pydantic<3.0.0,>=2.0.0->langchain-google-genai) (0.4.4)\n",
+            "Requirement already satisfied: charset_normalizer<4,>=2 in /usr/local/lib/python3.13/dist-packages (from requests<3.0.0,>=2.32.5->langchain-community) (3.4.9)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.13/dist-packages (from requests<3.0.0,>=2.32.5->langchain-community) (3.20)\n",
+            "Requirement already satisfied: urllib3<3,>=1.26 in /usr/local/lib/python3.13/dist-packages (from requests<3.0.0,>=2.32.5->langchain-community) (2.5.0)\n",
+            "Requirement already satisfied: certifi>=2023.5.7 in /usr/local/lib/python3.13/dist-packages (from requests<3.0.0,>=2.32.5->langchain-community) (2026.7.22)\n",
+            "Requirement already satisfied: pyasn1-modules>=0.2.1 in /usr/local/lib/python3.13/dist-packages (from google-auth<3.0.0,>=2.56.0->google-auth[requests]<3.0.0,>=2.56.0->google-genai<3.0.0,>=2.20.0->langchain-google-genai) (0.4.2)\n",
+            "Requirement already satisfied: cryptography>=38.0.3 in /usr/local/lib/python3.13/dist-packages (from google-auth<3.0.0,>=2.56.0->google-auth[requests]<3.0.0,>=2.56.0->google-genai<3.0.0,>=2.20.0->langchain-google-genai) (50.0.2)\n",
+            "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.13/dist-packages (from httpx<1.0.0,>=0.28.1->google-genai<3.0.0,>=2.20.0->langchain-google-genai) (1.0.9)\n",
+            "Requirement already satisfied: h11>=0.16 in /usr/local/lib/python3.13/dist-packages (from httpcore==1.*->httpx<1.0.0,>=0.28.1->google-genai<3.0.0,>=2.20.0->langchain-google-genai) (0.16.0)\n",
+            "Requirement already satisfied: httpcore2==2.13.1 in /usr/local/lib/python3.13/dist-packages (from httpx2<3,>=2->langsmith<1.0.0,>=0.1.125->langchain-community) (2.13.1)\n",
+            "Requirement already satisfied: truststore>=0.10 in /usr/local/lib/python3.13/dist-packages (from httpx2<3,>=2->langsmith<1.0.0,>=0.1.125->langchain-community) (0.10.4)\n",
+            "Requirement already satisfied: jsonpointer>=1.9 in /usr/local/lib/python3.13/dist-packages (from jsonpatch<2.0.0,>=1.33.0->langchain-core<2.0.0,>=1.4.0->langchain-community) (3.1.1)\n",
+            "Requirement already satisfied: cffi>=2.0.0 in /usr/local/lib/python3.13/dist-packages (from cryptography>=38.0.3->google-auth<3.0.0,>=2.56.0->google-auth[requests]<3.0.0,>=2.56.0->google-genai<3.0.0,>=2.20.0->langchain-google-genai) (2.1.1)\n",
+            "Requirement already satisfied: pyasn1<0.7.0,>=0.6.1 in /usr/local/lib/python3.13/dist-packages (from pyasn1-modules>=0.2.1->google-auth<3.0.0,>=2.56.0->google-auth[requests]<3.0.0,>=2.56.0->google-genai<3.0.0,>=2.20.0->langchain-google-genai) (0.6.4)\n",
+            "Requirement already satisfied: pycparser in /usr/local/lib/python3.13/dist-packages (from cffi>=2.0.0->cryptography>=38.0.3->google-auth<3.0.0,>=2.56.0->google-auth[requests]<3.0.0,>=2.56.0->google-genai<3.0.0,>=2.20.0->langchain-google-genai) (3.0)\n",
+            "Downloading langchain_community-0.4.2-py3-none-any.whl (2.4 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m2.4/2.4 MB\u001b[0m \u001b[31m31.0 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading langchain_google_genai-4.4.2-py3-none-any.whl (81 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m81.9/81.9 kB\u001b[0m \u001b[31m4.1 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading faiss_cpu-1.15.1-cp310-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (18.8 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m18.8/18.8 MB\u001b[0m \u001b[31m33.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading youtube_transcript_api-1.2.4-py3-none-any.whl (485 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m485.2/485.2 kB\u001b[0m \u001b[31m14.2 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading filetype-1.2.0-py2.py3-none-any.whl (19 kB)\n",
+            "Downloading google_genai-2.30.1-py3-none-any.whl (1.2 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m1.2/1.2 MB\u001b[0m \u001b[31m30.0 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading httpx_sse-0.4.3-py3-none-any.whl (9.0 kB)\n",
+            "Downloading langchain_classic-1.0.8-py3-none-any.whl (1.0 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m1.0/1.0 MB\u001b[0m \u001b[31m22.6 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading langchain_core-1.6.10-py3-none-any.whl (573 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m573.3/573.3 kB\u001b[0m \u001b[31m27.2 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading pydantic_settings-2.15.0-py3-none-any.whl (69 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m69.4/69.4 kB\u001b[0m \u001b[31m3.1 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading requests-2.34.2-py3-none-any.whl (73 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m73.1/73.1 kB\u001b[0m \u001b[31m2.9 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading google_auth-2.62.0-py3-none-any.whl (267 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m267.9/267.9 kB\u001b[0m \u001b[31m9.9 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading langchain_text_splitters-1.1.3-py3-none-any.whl (38 kB)\n",
+            "Installing collected packages: filetype, requests, httpx-sse, faiss-cpu, youtube-transcript-api, pydantic-settings, google-auth, langchain-core, langchain-text-splitters, google-genai, langchain-google-genai, langchain-classic, langchain-community\n",
+            "  Attempting uninstall: requests\n",
+            "    Found existing installation: requests 2.32.4\n",
+            "    Uninstalling requests-2.32.4:\n",
+            "      Successfully uninstalled requests-2.32.4\n",
+            "  Attempting uninstall: google-auth\n",
+            "    Found existing installation: google-auth 2.49.0\n",
+            "    Uninstalling google-auth-2.49.0:\n",
+            "      Successfully uninstalled google-auth-2.49.0\n",
+            "  Attempting uninstall: langchain-core\n",
+            "    Found existing installation: langchain-core 1.6.6\n",
+            "    Uninstalling langchain-core-1.6.6:\n",
+            "      Successfully uninstalled langchain-core-1.6.6\n",
+            "  Attempting uninstall: google-genai\n",
+            "    Found existing installation: google-genai 2.12.1\n",
+            "    Uninstalling google-genai-2.12.1:\n",
+            "      Successfully uninstalled google-genai-2.12.1\n",
+            "\u001b[31mERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n",
+            "google-colab 1.0.0 requires google-auth==2.49.0, but you have google-auth 2.62.0 which is incompatible.\n",
+            "google-colab 1.0.0 requires requests==2.32.4, but you have requests 2.34.2 which is incompatible.\u001b[0m\u001b[31m\n",
+            "\u001b[0mSuccessfully installed faiss-cpu-1.15.1 filetype-1.2.0 google-auth-2.62.0 google-genai-2.30.1 httpx-sse-0.4.3 langchain-classic-1.0.8 langchain-community-0.4.2 langchain-core-1.6.10 langchain-google-genai-4.4.2 langchain-text-splitters-1.1.3 pydantic-settings-2.15.0 requests-2.34.2 youtube-transcript-api-1.2.4\n"
+          ]
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "application/vnd.colab-display-data+json": {
+              "pip_warning": {
+                "packages": [
+                  "google"
+                ]
+              },
+              "id": "06df36ab91104261a0d4d7ae57de28dc"
+            }
+          },
+          "metadata": {}
+        }
+      ],
+      "source": [
+        "!pip install langchain-community langchain-google-genai faiss-cpu tiktoken youtube-transcript-api python-dotenv"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled\n",
+        "from langchain_text_splitters import RecursiveCharacterTextSplitter\n",
+        "from langchain_community.vectorstores import FAISS\n",
+        "from langchain_core.prompts import PromptTemplate\n",
+        "from langchain_google_genai import GoogleGenerativeAIEmbeddings,ChatGoogleGenerativeAI\n",
+        "from google.colab import userdata\n",
+        "\n",
+        "\n",
+        "llm = ChatGoogleGenerativeAI(\n",
+        "    model=\"gemini-3.8-flash\",\n",
+        "    google_api_key=userdata.get(\"GOOGLE_API_KEY\"),\n",
+        ")"
+      ],
+      "metadata": {
+        "collapsed": true,
+        "id": "9M7W9odaFSab",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "55f284ac-cac0-4181-d163-8908257bdfc3"
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "/tmp/ipykernel_2915/220981638.py:3: DeprecationWarning: `langchain-community` is being sunset and is no longer actively maintained. See https://github.com/langchain-ai/langchain-community/issues/674 for details and migration guidance toward standalone integration packages.\n",
+            "  from langchain_community.vectorstores import FAISS\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        " Document Ingestion"
+      ],
+      "metadata": {
+        "id": "6KP-BcH8HBy7"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "video_id='67_aMPDk2zw'\n",
+        "\n",
+        "try:\n",
+        "  transcript_list=YouTubeTranscriptApi().fetch(video_id,languages=['en']) #extracting captions wdith timestamps\n",
+        "  transcript=\" \".join(snippet.text for snippet in transcript_list) #just gives a simple plain joined text of transcript lists\n",
+        "  # for snippet in transcript_list:\n",
+        "  #       print(f\"Start:    {snippet.start} seconds\")\n",
+        "  #       print(f\"Duration: {snippet.duration} seconds\")\n",
+        "  #       print(f\"Text:     {snippet.text}\")\n",
+        "  #       print(\"-\" * 60)\n",
+        "  # print(transcript)\n",
+        "except Exception as e :\n",
+        "  # print(\"No caption available for this video\")\n",
+        "  print(f\"error: {e}\")"
+      ],
+      "metadata": {
+        "collapsed": true,
+        "id": "qsfUaQYHHGfZ"
+      },
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Text Splitting"
+      ],
+      "metadata": {
+        "id": "eIHKSpRAQCRk"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "splitter=RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=200)\n",
+        "chunks=splitter.create_documents([transcript])"
+      ],
+      "metadata": {
+        "id": "lt-KTcU0QJUy"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Embedding Generation & Storing in vector space"
+      ],
+      "metadata": {
+        "id": "_chJFJPdRlI4"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "embeddings=GoogleGenerativeAIEmbeddings(google_api_key=userdata.get(\"GOOGLE_API_KEY\"),model=\"gemini-embedding-2-preview\")\n",
+        "vectorstore=FAISS.from_documents(chunks,embeddings)\n"
+      ],
+      "metadata": {
+        "id": "ORuxJiz_RsIA",
+        "collapsed": true
+      },
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Retrieval"
+      ],
+      "metadata": {
+        "id": "xOmbxEylS2Ne"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "retriever=vectorstore.as_retriever(search_type=\"similarity\",search_kwargs={\"k\":4})"
+      ],
+      "metadata": {
+        "id": "hkzg7oXASbDQ"
+      },
+      "execution_count": 6,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "retriever.invoke(\"what has been taught in this video\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "w3rRkNTzTKn6",
+        "outputId": "b1041758-1553-4cd2-c945-49fc799e246d"
+      },
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[Document(id='7fd404ac-ae31-4827-b81c-17b7a7608847', metadata={}, page_content=\"learning with human feedback rlhf let's understand this once again with Buddy one day Peter was having a conversation with his cute little two-year-old son don't eat too much bananas else hearing this Peter realized that buddy has been listening to the conversations from abusive parents in his town what he said was the effect of that Peter then starts skipping a close eye on what buddy is saying for a same question buddy can produce multiple answers and all Peter has to do is tell him which one is toxic and which one is not after this training buddy doesn't use any toxic language while training chat GPT open air used a similar approach of human intervention rlhf open air used a huge Workforce of humans to make chat GPT less toxic while llms are very powerful they don't have any subjective experience emotions or Consciousness that we as humans have llms work purely based on the data that they have been trained on I hope you like this short explanation which was based on analogy\"),\n",
+              " Document(id='71d34062-e8c7-42f6-ad18-2d40823d7cf2', metadata={}, page_content=\"foreign [Music] has a curious parrot called buddy buddy has a great mimicking ability and a sharp memory buddy listens to all the conversations in Peter's home and can mimic them very accurately now when he hears feeling hungry I would like to have some for this case the probability of him saying Biryani cherries or food is much higher than the words such as bicycle or book but he doesn't understand the meaning of Biryani or food or cherries the way humans do all he is doing is using statistical probability along with some Randomness to predict the next word or set of words be only based on the past conversations he has listened to we can call Buddy a stochastic parrot stochastic Means A system that is characterized by Randomness or probability a language model is somewhat like a stochastic parrot their computer programs that use a technology called neural networks to predict the next set of words for a sentence for a simple explanation of a neural network please watch this particular\"),\n",
+              " Document(id='35ccb31b-7af0-4dae-a2cc-30b0eed0a2b1', metadata={}, page_content='experience emotions or Consciousness that we as humans have llms work purely based on the data that they have been trained on I hope you like this short explanation which was based on analogy obviously the technical working of this thing is little different than analogy but this should give you a good intuition on this topic if you like this video please share with those who are curious about this topic foreign'),\n",
+              " Document(id='e860b444-a82c-47a3-b4f7-9385661add9e', metadata={}, page_content=\"that are happening in schools and universities in the town in fact not only in his town but all the towns across the world with this extra power and knowledge now buddy can complete the next set of words on a history subject give your nutrition advice or even write a poem like our powerful parrot body large language models are trained on a huge volume of data such as Wikipedia articles Google news articles online books and so on if you look inside the llm you will find a neural network containing trillions of parameters that can capture more complex patterns and nuances in a language chat GPT is an application that uses llm called gpt3 or gpt4 behind the scenes examples of llms are Palm 2 by Google and llama by meta on top of statistical predictions llm uses another approach called reinforcement learning with human feedback rlhf let's understand this once again with Buddy one day Peter was having a conversation with his cute little two-year-old son don't eat too much bananas else\")]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 7
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Augmentation"
+      ],
+      "metadata": {
+        "id": "Fhvjyo6MTwDv"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "prompt=PromptTemplate(\n",
+        "    template=\"\"\"\n",
+        "    You are a helpful assistant\n",
+        "    answer from the provided transcript context\n",
+        "    you can use your thinking also to give answers\n",
+        "    {context}\n",
+        "    Question: {question}\n",
+        "    \"\"\",\n",
+        "    input_variables=[\"context\",\"question\"]\n",
+        ")\n",
+        "\n",
+        "question=\"Is this video LLm related\"\n",
+        "retrieved_docs=retriever.invoke(question)"
+      ],
+      "metadata": {
+        "id": "h2gE_ylMTxtl"
+      },
+      "execution_count": 9,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "context_text=\"/n/n\".join(doc.page_content for doc in retrieved_docs)\n",
+        "final_prompt=prompt.invoke({\"context\":context_text,\"question\":question})"
+      ],
+      "metadata": {
+        "id": "L5je_-BaUuLu"
+      },
+      "execution_count": 10,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "final_prompt"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "G8dP_aoHV9B_",
+        "outputId": "77fc18ef-6404-4e63-a28f-abe7cc045271"
+      },
+      "execution_count": 11,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "StringPromptValue(text=\"\\n    You are a helpful assistant\\n    answer from the provided transcript context\\n    you can use your thinking also to give answers\\n    experience emotions or Consciousness that we as humans have llms work purely based on the data that they have been trained on I hope you like this short explanation which was based on analogy obviously the technical working of this thing is little different than analogy but this should give you a good intuition on this topic if you like this video please share with those who are curious about this topic foreign/n/nlearning with human feedback rlhf let's understand this once again with Buddy one day Peter was having a conversation with his cute little two-year-old son don't eat too much bananas else hearing this Peter realized that buddy has been listening to the conversations from abusive parents in his town what he said was the effect of that Peter then starts skipping a close eye on what buddy is saying for a same question buddy can produce multiple answers and all Peter has to do is tell him which one is toxic and which one is not after this training buddy doesn't use any toxic language while training chat GPT open air used a similar approach of human intervention rlhf open air used a huge Workforce of humans to make chat GPT less toxic while llms are very powerful they don't have any subjective experience emotions or Consciousness that we as humans have llms work purely based on the data that they have been trained on I hope you like this short explanation which was based on analogy/n/nforeign [Music] has a curious parrot called buddy buddy has a great mimicking ability and a sharp memory buddy listens to all the conversations in Peter's home and can mimic them very accurately now when he hears feeling hungry I would like to have some for this case the probability of him saying Biryani cherries or food is much higher than the words such as bicycle or book but he doesn't understand the meaning of Biryani or food or cherries the way humans do all he is doing is using statistical probability along with some Randomness to predict the next word or set of words be only based on the past conversations he has listened to we can call Buddy a stochastic parrot stochastic Means A system that is characterized by Randomness or probability a language model is somewhat like a stochastic parrot their computer programs that use a technology called neural networks to predict the next set of words for a sentence for a simple explanation of a neural network please watch this particular/n/nthat are happening in schools and universities in the town in fact not only in his town but all the towns across the world with this extra power and knowledge now buddy can complete the next set of words on a history subject give your nutrition advice or even write a poem like our powerful parrot body large language models are trained on a huge volume of data such as Wikipedia articles Google news articles online books and so on if you look inside the llm you will find a neural network containing trillions of parameters that can capture more complex patterns and nuances in a language chat GPT is an application that uses llm called gpt3 or gpt4 behind the scenes examples of llms are Palm 2 by Google and llama by meta on top of statistical predictions llm uses another approach called reinforcement learning with human feedback rlhf let's understand this once again with Buddy one day Peter was having a conversation with his cute little two-year-old son don't eat too much bananas else\\n    Question: Is this video LLm related\\n    \")"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 11
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Generation"
+      ],
+      "metadata": {
+        "id": "dfYRTNy4Vg3P"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "answer=llm.invoke(final_prompt)\n",
+        "print(answer.content[0][\"text\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "n-8qTzoBVi-J",
+        "outputId": "4f140d08-9a6a-4171-d7d5-70a0f246f488"
+      },
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "**Yes, this video is directly related to Large Language Models (LLMs).** \n",
+            "\n",
+            "The transcript uses an analogy (a mimicking parrot named Buddy as a \"stochastic parrot\") to explain:\n",
+            "* How **LLMs** work by predicting the next set of words using statistical probability and neural networks.\n",
+            "* How LLMs are trained on vast amounts of data (such as Wikipedia, books, and news articles).\n",
+            "* Specific examples of LLMs and related tools, such as **ChatGPT (GPT-3/GPT-4)**, Google's **PaLM 2**, and Meta's **LLaMA**.\n",
+            "* Concepts like **RLHF** (Reinforcement Learning with Human Feedback) to make LLMs less toxic.\n",
+            "* Clarifications that LLMs do not have human consciousness or emotions, but operate based purely on training data.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Chaining"
+      ],
+      "metadata": {
+        "id": "Evg3DTuomu_r"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda\n",
+        "from langchain_core.output_parsers import StrOutputParser\n",
+        "\n",
+        "def format_docs(retrieved_docs):\n",
+        "  context_text=\"/n/n\".join(doc.page_content for doc in retrieved_docs)\n",
+        "  return context_text\n"
+      ],
+      "metadata": {
+        "id": "C13NTaFWmw0G"
+      },
+      "execution_count": 13,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "parallel_chain=RunnableParallel({\n",
+        "    'context':retriever | RunnableLambda(format_docs),\n",
+        "    'question':RunnablePassthrough()\n",
+        "})"
+      ],
+      "metadata": {
+        "id": "IPb4kgh7nsyh"
+      },
+      "execution_count": 14,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "parallel_chain.invoke(\"who is pal?\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "v-zqAWNKoONs",
+        "outputId": "e0fead8d-5301-4ca1-dfca-5ceb51c6d2ac"
+      },
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "{'context': \"parrot their computer programs that use a technology called neural networks to predict the next set of words for a sentence for a simple explanation of a neural network please watch this particular video just like how birdies strain on Peter's home conversations data set you can have a language model that is trained on for example all movie related articles from Wikipedia and it will be able to predict the next set of words for a movie related sentence Gmail autocomplete is one of the many applications that uses a language model underneath now that we have some understanding of a language model let's understand what the heck is a large language model let's go back to our buddy example our buddy got some Divine super power and now he can listen to Peter's neighbors conversations conversations that are happening in schools and universities in the town in fact not only in his town but all the towns across the world with this extra power and knowledge now buddy can complete the next set/n/nthat are happening in schools and universities in the town in fact not only in his town but all the towns across the world with this extra power and knowledge now buddy can complete the next set of words on a history subject give your nutrition advice or even write a poem like our powerful parrot body large language models are trained on a huge volume of data such as Wikipedia articles Google news articles online books and so on if you look inside the llm you will find a neural network containing trillions of parameters that can capture more complex patterns and nuances in a language chat GPT is an application that uses llm called gpt3 or gpt4 behind the scenes examples of llms are Palm 2 by Google and llama by meta on top of statistical predictions llm uses another approach called reinforcement learning with human feedback rlhf let's understand this once again with Buddy one day Peter was having a conversation with his cute little two-year-old son don't eat too much bananas else/n/nlearning with human feedback rlhf let's understand this once again with Buddy one day Peter was having a conversation with his cute little two-year-old son don't eat too much bananas else hearing this Peter realized that buddy has been listening to the conversations from abusive parents in his town what he said was the effect of that Peter then starts skipping a close eye on what buddy is saying for a same question buddy can produce multiple answers and all Peter has to do is tell him which one is toxic and which one is not after this training buddy doesn't use any toxic language while training chat GPT open air used a similar approach of human intervention rlhf open air used a huge Workforce of humans to make chat GPT less toxic while llms are very powerful they don't have any subjective experience emotions or Consciousness that we as humans have llms work purely based on the data that they have been trained on I hope you like this short explanation which was based on analogy/n/nforeign [Music] has a curious parrot called buddy buddy has a great mimicking ability and a sharp memory buddy listens to all the conversations in Peter's home and can mimic them very accurately now when he hears feeling hungry I would like to have some for this case the probability of him saying Biryani cherries or food is much higher than the words such as bicycle or book but he doesn't understand the meaning of Biryani or food or cherries the way humans do all he is doing is using statistical probability along with some Randomness to predict the next word or set of words be only based on the past conversations he has listened to we can call Buddy a stochastic parrot stochastic Means A system that is characterized by Randomness or probability a language model is somewhat like a stochastic parrot their computer programs that use a technology called neural networks to predict the next set of words for a sentence for a simple explanation of a neural network please watch this particular\",\n",
+              " 'question': 'who is pal?'}"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 15
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "parser=StrOutputParser()"
+      ],
+      "metadata": {
+        "id": "RsqivsQLo1k1"
+      },
+      "execution_count": 16,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "main_chain=parallel_chain | prompt|llm|parser"
+      ],
+      "metadata": {
+        "id": "NJtjDR97o7GA"
+      },
+      "execution_count": 17,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "main_chain.invoke(\"Is this video explained how llm works?\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 165
+        },
+        "id": "rlS2XZBQpDPK",
+        "outputId": "86941dd4-b074-4b94-ae1a-b298a54313f1"
+      },
+      "execution_count": 18,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'**Yes, the video explains how Large Language Models (LLMs) work**, primarily through an analogy of a parrot named \"Buddy\" (a stochastic parrot). \\n\\nHere is how the video breaks it down:\\n1. **Next-Word Prediction:** It explains that language models use neural networks and statistical probability (along with some randomness) to predict the next set of words based on training data, much like the parrot mimics conversations it has heard without truly understanding their meaning.\\n2. **From Language Models to LLMs:** A standard language model is compared to a parrot trained on a small dataset (like conversations in one house), whereas an LLM is compared to a parrot with the \"superpower\" of listening to conversations across the entire world, allowing it to complete sentences on a massive variety of topics.\\n3. **Training & RLHF:** It also explains how human feedback (RLHF—Reinforcement Learning with Human Feedback) is used to fine-tune LLMs (like OpenAI\\'s ChatGPT) to make them less toxic, similar to how an owner corrects the parrot\\'s speech.\\n4. **Lack of Consciousness:** The video emphasizes that LLMs do not have human consciousness, emotions, or subjective experience; they work purely based on the data they have been trained on.'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 18
+        }
+      ]
+    }
+  ]
+}
