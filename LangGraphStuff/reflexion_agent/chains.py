@@ -3,11 +3,8 @@ import datetime
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 from schema import AnswerQuestion, ReviseAnswer
-from langchain_core.output_parsers import PydanticToolsParser
-from langchain_core.messages import HumanMessage
 
 load_dotenv()
-pydanticParser = PydanticToolsParser(tools=[AnswerQuestion])
 llm = ChatGoogleGenerativeAI(model="gemini-3.6-flash")
 
 # Actor Agent Prompt
@@ -34,20 +31,7 @@ first_reponder_prompt_template = actor_prompt_template.partial(
 first_reponder_chain = (
     first_reponder_prompt_template
     | llm.bind_tools(tools=[AnswerQuestion], tool_choice="AnswerQuestion")
-    | pydanticParser
 )
-
-reponse = first_reponder_chain.invoke(
-    {
-        "messages": [
-            HumanMessage(
-                content="write a short blog post on how small bussiness can leverage Ai to grow"
-            )
-        ]
-    }
-)
-
-print(reponse)
 
 
 # Revisor section
@@ -65,4 +49,4 @@ revisor_chain = actor_prompt_template.partial(
     first_instruction=revise_instructions
 ) | llm.bind_tools(tools=[ReviseAnswer], tool_choice="ReviseAnswer")
 
-revisor_chain.invoke({"messages"})
+# revisor_chain.invoke({"messages"})
