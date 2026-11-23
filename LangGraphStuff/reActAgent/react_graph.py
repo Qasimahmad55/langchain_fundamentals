@@ -15,7 +15,7 @@ ACT = "act"
 
 
 def should_continue(state: AgentState):
-    """Stop after a final answer; otherwise run the requested tools."""
+    """Stop after the final answer; otherwise run the tool."""
     if isinstance(state["agent_outcome"], AgentFinish):
         return END
     return ACT
@@ -35,7 +35,8 @@ def build_graph():
     return graph.compile()
 
 
-if __name__ == "__main__":
+def main():
+    """Run the agent with one question."""
     app = build_graph()
 
     result = app.invoke(
@@ -45,7 +46,19 @@ if __name__ == "__main__":
             "intermediate_steps": [],
         },
         # Stop if the model keeps calling tools forever.
-        config={"recursion_limit": 25},
+        config={"recursion_limit": 15},
     )
 
+    print("\nFinal answer:")
     print(result["agent_outcome"].return_values["output"])
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as error:
+        print("\nThe agent could not finish.")
+        print("Error:", error)
+
+    # Keep the window open when the file is double-clicked.
+    input("\nPress Enter to close...")

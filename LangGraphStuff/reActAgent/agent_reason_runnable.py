@@ -1,4 +1,4 @@
-"""The Gemini model and the tools it is allowed to use."""
+"""The Gemini model and the tools it can use."""
 
 from datetime import datetime
 
@@ -10,7 +10,10 @@ from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_tavily import TavilySearch
 
-llm = ChatGoogleGenerativeAI(model="gemini-3.6-flash")
+llm = ChatGoogleGenerativeAI(
+    model="gemini-3.5-flash-lite",
+    request_timeout=30,
+)
 
 
 @tool
@@ -28,4 +31,5 @@ def web_search(query: str) -> str:
 
 tools = [get_current_time, web_search]
 
-react_agent_runnable = llm.bind_tools(tools)
+# Give the model the tools so it can choose one.
+llm_with_tools = llm.bind_tools(tools)

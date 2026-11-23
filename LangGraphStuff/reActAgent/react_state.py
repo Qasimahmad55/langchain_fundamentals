@@ -11,8 +11,9 @@ class AgentState(TypedDict):
 
     input: str
 
-    # Either the tools the model wants to call, or its final answer.
-    agent_outcome: list[AgentAction] | AgentFinish | None
+    # Either a tool call or the final answer.
+    agent_outcome: AgentAction | AgentFinish | None
 
-    # A list of (tool call, tool result) pairs. operator.add appends new steps.
+    # A list of (tool call, tool result) pairs.
+    # operator.add means new steps are added to the list.
     intermediate_steps: Annotated[list[tuple[AgentAction, str]], operator.add]
