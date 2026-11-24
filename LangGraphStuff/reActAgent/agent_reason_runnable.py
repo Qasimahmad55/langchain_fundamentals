@@ -1,6 +1,7 @@
 """The Gemini model and the tools it can use."""
 
 from datetime import datetime
+from langchain_groq import ChatGroq
 
 from dotenv import load_dotenv
 
@@ -10,10 +11,7 @@ from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_tavily import TavilySearch
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-3.5-flash-lite",
-    request_timeout=30,
-)
+llm = ChatGroq(model="openai/gpt-oss-20b")
 
 
 @tool
